@@ -1,0 +1,5 @@
+/data/
+pipeline/node_modules/
+pipeline/models/
+pipeline/data
+tests/results.json
