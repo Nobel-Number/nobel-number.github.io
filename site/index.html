@@ -78,7 +78,7 @@ a { color: inherit }
   background: linear-gradient(180deg, var(--medal-1), var(--medal-2)); box-shadow: inset 0 1px 0 rgba(255,255,255,.5) }
 .go:disabled { opacity: .55; cursor: wait }
 .go:focus-visible, .chip:focus-visible, .cand:focus-visible, .other:focus-visible { outline: 2px solid var(--gold-hi); outline-offset: 2px }
-.examples { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; font-size: 13px; color: var(--hero-muted) }
+
 .chip { font: 600 13px var(--body); border: 1px solid var(--hero-line); background: rgba(255,255,255,.03); color: var(--hero-ink); border-radius: 999px; padding: 5px 13px; cursor: pointer }
 .chip:hover { border-color: var(--hero-muted) }
 .chip[aria-pressed="true"] { border-color: var(--hero-gold); color: var(--hero-gold); background: rgba(220, 183, 92, .1) }
@@ -260,7 +260,6 @@ footer .inner { display: flex; justify-content: space-between; gap: 12px; flex-w
         <input type="text" id="q" placeholder="Your name or ORCID iD" aria-label="Your name, ORCID iD or OpenAlex author ID" autocomplete="off">
         <button class="go" id="go" type="button">Find my number</button>
       </div>
-      <div class="examples" id="examples"><span>Try:</span></div>
       <ul class="cands" id="cands" hidden></ul>
       <div class="status" id="status" role="status" aria-live="polite"></div>
     </div>
@@ -268,7 +267,7 @@ footer .inner { display: flex; justify-content: space-between; gap: 12px; flex-w
 </header>
 
 <main class="inner">
-  <section aria-label="Result">
+  <section aria-label="Result" id="res-sec" hidden>
     <div class="headline">
       <div class="card profile">
         <div class="who">
@@ -296,7 +295,7 @@ footer .inner { display: flex; justify-content: space-between; gap: 12px; flex-w
     <div class="scale" id="scale" aria-hidden="true"></div>
   </section>
 
-  <section aria-label="Chain" id="chain-sec">
+  <section aria-label="Chain" id="chain-sec" hidden>
     <div class="sect-head"><h2 id="chain-h">The chain</h2><span class="eyebrow">Every person checked against their own record</span></div>
     <div class="chain" id="chain"></div>
     <div class="card about" id="about"></div>
@@ -314,7 +313,7 @@ footer .inner { display: flex; justify-content: space-between; gap: 12px; flex-w
     <div class="netfind"><input type="text" id="netq" placeholder="Find a laureate on the map, e.g. Albert Einstein" aria-label="Find a laureate on the map" autocomplete="off"><ul class="netsug" id="netsug" hidden></ul></div>
   </section>
 
-  <section aria-label="Laureates within reach" id="reach-sec">
+  <section aria-label="Laureates within reach" id="reach-sec" hidden>
     <div class="sect-head"><h2 id="reach-h">Laureates within reach</h2><span class="eyebrow">Choose one to see its chain</span></div>
     <div class="reach" id="others"></div>
   </section>
@@ -696,6 +695,7 @@ function netFigs(res) {
 function render(res, person, isSample, pick = 0) {
   current = { res, person, isSample };
   profile(person);
+  $('res-sec').hidden = false;
   $('sample-tag').hidden = !isSample;
   const n = res.number;
   $('medal').innerHTML = medalSVG(n);
@@ -743,14 +743,13 @@ async function run(person) {
   try {
     setStatus(`Tracing co-authors of ${person.name}…`);
     const res = await search.nobelNumber(person);
-    document.querySelectorAll('#examples .chip').forEach(c => c.setAttribute('aria-pressed', 'false'));
     render(res, person, false);
     setStatus(`Done · ${res.requests} OpenAlex requests`);
   } catch (e) { setStatus(friendly(e), true); console.error(e); }
   finally { $('go').disabled = false; }
 }
 function friendly(e) {
-  if (e instanceof TypeError) return 'Searching new people needs the live site. This claude.ai preview is not allowed to contact OpenAlex, so only the example profiles above work here.';
+  if (e instanceof TypeError) return 'Searching new people needs the live site. This preview is not allowed to contact OpenAlex. Open the published site to search.';
   return e.message || String(e);
 }
 $('go').addEventListener('click', async () => {
@@ -778,12 +777,6 @@ try {
   $('nl').textContent = nl; $('m-laur').textContent = nl;
   $('m-co').textContent = fmt(Object.keys(coauthors).length);
   $('data-note').textContent = `${laureates.length} prizes · 1901–2026`;
-  $('examples').insertAdjacentHTML('beforeend', examples.map((x, i) => `<button class="chip" type="button" data-i="${i}" aria-pressed="${i === 0}">${esc(x.person.name)}</button>`).join(''));
-  $('examples').addEventListener('click', e => {
-    const b = e.target.closest('.chip'); if (!b) return;
-    document.querySelectorAll('#examples .chip').forEach(c => c.setAttribute('aria-pressed', c === b));
-    const x = examples[+b.dataset.i]; render(x.result, x.person, true);
-  });
   netSetup(network, coauthors);
   const fold = s => s.normalize('NFKD').replace(/[̀-ͯ]/g, '').toLowerCase();
   const pool = network.nodes.map(nd => ({ li: nd[0], l: laureates[nd[0]], key: fold(laureates[nd[0]].name) }));
@@ -797,6 +790,5 @@ try {
   });
   $('netq').addEventListener('keydown', e => { if (e.key === 'Enter' && sug[0]) { e.preventDefault(); pickLaureate(sug[0].li); } if (e.key === 'Escape') $('netsug').hidden = true; });
   $('netsug').addEventListener('click', e => { const b = e.target.closest('button[data-li]'); if (b) pickLaureate(+b.dataset.li); });
-  render(examples[0].result, examples[0].person, true);
 } catch (e) { setStatus('Could not load the laureate data: ' + e.message, true); console.error(e); }
 </script>
