@@ -1,8 +1,8 @@
 """Laureate network: laureates are linked when they co-authored, or share 2+ co-authors. Force layout with numpy."""
 import json, collections, itertools, numpy as np
-site = json.load(open("site/data/laureates.json"))
-lids = json.load(open("site/data/laureate_ids.json"))
-co = json.load(open("site/data/coauthors.json"))
+site = json.load(open("data/laureates.json"))
+lids = json.load(open("data/laureate_ids.json"))
+co = json.load(open("data/coauthors.json"))
 idx_of = {a: (v if isinstance(v, list) else [v]) for a, v in lids.items()}
 nodes = sorted({i for v in idx_of.values() for i in v})
 pos = {li: k for k, li in enumerate(nodes)}
@@ -44,5 +44,5 @@ iso = np.where(~conn)[0]; ang = rng.uniform(0, 2*np.pi, len(iso)); rad = rng.uni
 v = rng.normal(0, 1, (len(iso), 3)); v /= np.linalg.norm(v, axis=1, keepdims=True); P[iso] = v * rad[:, None]
 out = {"nodes": [[li, round(float(x), 4), round(float(y), 4), int(deg[k]), round(float(z), 4)] for k, (li, (x, y, z)) in enumerate(zip(nodes, P))],
        "edges": [[a, b, round(w, 2), 1 if (nodes[a], nodes[b]) in direct or (nodes[b], nodes[a]) in direct else 0] for a, b, w in E], "people": len(co)}
-json.dump(out, open("site/data/network.json", "w"), separators=(",", ":"))
+json.dump(out, open("data/network.json", "w"), separators=(",", ":"))
 print("isolated", int((deg == 0).sum()))

@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /pipeline/
+Disallow: /tests/
+Sitemap: https://nobel-number.github.io/sitemap.xml

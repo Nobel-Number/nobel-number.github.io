@@ -9,7 +9,7 @@ def get(url):
         try: return json.load(urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=90))
         except Exception as e: err = e; time.sleep(2 * (i + 1))
     print("FAIL", url, err, flush=True); return None
-A = [r for r in json.load(open("data/author_ids.json")) if r["ids"]]
+A = [r for r in json.load(open("raw/author_ids.json")) if r["ids"]]
 def crawl(r):
     ids = set(r["ids"]); co = {}; page = 1
     while page <= 40:  # at most 8000 works per laureate
@@ -32,5 +32,5 @@ with ThreadPoolExecutor(6) as ex:
     for i, res in enumerate(ex.map(crawl, A)):
         out.append(res)
         if i % 50 == 0: print(i, len(res["co"]), flush=True)
-json.dump(out, open("data/coauthors_raw.json", "w"))
+json.dump(out, open("raw/coauthors_raw.json", "w"))
 print("done", sum(len(o["co"]) for o in out))

@@ -1,7 +1,7 @@
 """Resolve each laureate to OpenAlex author id(s) using works before the prize whose byline matches their name."""
 import json, urllib.request, urllib.parse, time, re, unicodedata, collections, math
 from concurrent.futures import ThreadPoolExecutor
-L = json.load(open("data/laureates.json"))
+L = json.load(open("raw/laureates.json"))
 UA = {'User-Agent': 'Mozilla/5.0 (research-similarity-prototype)'}
 def get(url):
     for i in range(5):
@@ -35,5 +35,5 @@ def resolve(l):
     return {"lid": l["id"], "ids": ids, "names": [disp[a] for a in ids], "scores": [round(score[a], 1) for a in ids]}
 uniq = {l["id"]: l for l in L}
 with ThreadPoolExecutor(6) as ex: res = list(ex.map(resolve, uniq.values()))
-json.dump(res, open("data/author_ids.json", "w"), indent=0)
+json.dump(res, open("raw/author_ids.json", "w"), indent=0)
 print(len(res), "resolved", sum(bool(r["ids"]) for r in res))

@@ -6,8 +6,8 @@ def get(u):
     for i in range(5):
         try: return json.load(urllib.request.urlopen(urllib.request.Request(u, headers=UA), timeout=60))
         except Exception: time.sleep(2 * (i + 1))
-L = json.load(open("data/laureates.json")); A = {r["lid"]: r["ids"] for r in json.load(open("data/author_ids.json"))}
-site = json.load(open("site/data/laureates.json"))
+L = json.load(open("raw/laureates.json")); A = {r["lid"]: r["ids"] for r in json.load(open("raw/author_ids.json"))}
+site = json.load(open("data/laureates.json"))
 def top(i):
     l = L[i]; ids = A.get(l["id"]) or []
     if not ids: return i, None
@@ -18,7 +18,7 @@ with ThreadPoolExecutor(6) as ex:
     for i, tp in ex.map(top, range(len(L))):
         site[i].pop("topPaper", None)
         if tp: site[i]["topPaper"] = tp
-json.dump(site, open("site/data/laureates.json", "w"), separators=(",", ":"))
+json.dump(site, open("data/laureates.json", "w"), separators=(",", ":"))
 for s in site:
     if s["name"] in ("Thomas H. Morgan", "Bruce A. Beutler", "Albert Einstein"): print(s["name"], s.get("topPaper"))
 print("with top paper", sum("topPaper" in s for s in site))

@@ -6,9 +6,9 @@ def get(u):
     for i in range(5):
         try: return json.load(urllib.request.urlopen(urllib.request.Request(u, headers=UA), timeout=60))
         except Exception: time.sleep(2 * (i + 1))
-net = json.load(open("site/data/network.json")); co = json.load(open("site/data/coauthors.json"))
-lids = json.load(open("site/data/laureate_ids.json"))
-raw = json.load(open("data/coauthors_raw.json"))
+net = json.load(open("data/network.json")); co = json.load(open("data/coauthors.json"))
+lids = json.load(open("data/laureate_ids.json"))
+raw = json.load(open("raw/coauthors_raw.json"))
 names = {}
 for r in raw:
     for a, (w, y, nm) in r["co"].items(): names.setdefault(a, nm)
@@ -61,4 +61,4 @@ for d in details: used.update([v for k, v in d.items() if k in ("w", "wx", "wy")
 titles = {w: titles[w] for w in used}
 for e, d in zip(net["edges"], details): e.append(d)
 net["works"] = titles
-json.dump(net, open("site/data/network.json", "w"), separators=(",", ":"))
+json.dump(net, open("data/network.json", "w"), separators=(",", ":"))

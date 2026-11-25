@@ -1,7 +1,7 @@
 """For each laureate, pull their most-cited works published before the prize (OpenAlex)."""
 import json, urllib.request, urllib.parse, time, re, unicodedata
 from concurrent.futures import ThreadPoolExecutor
-L = json.load(open("data/laureates.json"))
+L = json.load(open("raw/laureates.json"))
 UA = {'User-Agent': 'Mozilla/5.0 (research-similarity-prototype)'}
 
 def get(url, tries=4):
@@ -52,6 +52,6 @@ def fetch(l):
 
 with ThreadPoolExecutor(6) as ex:
     res = list(ex.map(fetch, L))
-json.dump(res, open("data/openalex_works.json", "w"))
+json.dump(res, open("raw/openalex_works.json", "w"))
 n = [len(r["works"]) for r in res]
 print("laureates", len(n), "with>=1 work", sum(x > 0 for x in n), "with abstract", sum(any(w["abstract"] for w in r["works"]) for r in res))

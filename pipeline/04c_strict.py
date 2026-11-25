@@ -1,8 +1,8 @@
 """Stricter laureate-profile check: names must agree on first name and middle initials; weak matches are dropped."""
 import json, re, unicodedata
 strip = lambda s: unicodedata.normalize("NFKD", s or "").encode("ascii", "ignore").decode().lower()
-L = {l["id"]: l for l in json.load(open("data/laureates.json"))}
-R = json.load(open("data/author_ids.json"))
+L = {l["id"]: l for l in json.load(open("raw/laureates.json"))}
+R = json.load(open("raw/author_ids.json"))
 SUF = {"jr", "jr.", "iii", "ii", "sr", "sr."}
 def core(fam): return [t for t in strip(fam).replace("-", " ").replace(",", " ").split() if t not in SUF]
 def toks(name, fam):
@@ -26,7 +26,7 @@ for r in R:
     for k in ("ids", "names", "scores"): r[k] = [r[k][j] for j in keep]
     if r["ids"] != old:
         changed.append(r["lid"])
-        if not r["ids"]: lost += 1; print("dropped:", l["name"], "<-", old and [n for n in json.load(open("data/author_ids_v1.json")) if n["lid"] == r["lid"]][0]["names"])
-json.dump(R, open("data/author_ids.json", "w"), indent=0)
+        if not r["ids"]: lost += 1; print("dropped:", l["name"], "<-", old and [n for n in json.load(open("raw/author_ids_v1.json")) if n["lid"] == r["lid"]][0]["names"])
+json.dump(R, open("raw/author_ids.json", "w"), indent=0)
 print("changed", len(changed), "now unresolved", lost, "resolved", sum(bool(r["ids"]) for r in R))
-json.dump(changed, open("data/changed_lids.json", "w"))
+json.dump(changed, open("raw/changed_lids.json", "w"))

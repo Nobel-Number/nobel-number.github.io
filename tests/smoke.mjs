@@ -1,7 +1,7 @@
 // Runs many real researchers through the site's search code and checks every chain against OpenAlex.
 import fs from 'fs';
-import { createSearch, MAX_AUTHORS } from '../site/nobel-number.js';
-const rd = f => JSON.parse(fs.readFileSync(new URL('../site/data/' + f + '.json', import.meta.url)));
+import { createSearch, MAX_AUTHORS } from '../nobel-number.js';
+const rd = f => JSON.parse(fs.readFileSync(new URL('../data/' + f + '.json', import.meta.url)));
 const laureates = rd('laureates'), laureateIds = rd('laureate_ids'), coauthors = rd('coauthors');
 const UA = { headers: { 'User-Agent': 'Mozilla/5.0 (research-similarity-prototype)' } };
 const fetchImpl = u => fetch(u, UA);

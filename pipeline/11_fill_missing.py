@@ -12,7 +12,7 @@ strip = lambda s: unicodedata.normalize("NFKD", s or "").encode("ascii", "ignore
 HON = {"sir", "lord", "jr", "jr.", "iii", "ii", "sr", "dr"}
 STOP = set("university of the institute for and de la le des der fur college school laboratory laboratories national research center centre inc company corporation hospital medical medicine dept department faculty royal state polytechnic technology science sciences institut universitat universite academy society foundation".split())
 ns = {}; exec(open("pipeline/04c_strict.py").read().split("changed, lost")[0], ns); compatible = ns["compatible"]
-L = json.load(open("data/laureates.json")); R = json.load(open("data/author_ids.json")); byl = {r["lid"]: r for r in R}
+L = json.load(open("raw/laureates.json")); R = json.load(open("raw/author_ids.json")); byl = {r["lid"]: r for r in R}
 def clean(s): return " ".join(t for t in (s or "").replace(",", " ").split() if strip(t).strip(".") not in HON)
 def words(s): return {w for w in re.findall(r"[a-z]{3,}", strip(s)) if w not in STOP}
 def mids(l, fam):  # middle names/initials from the full prize name (the "given" field sometimes leaves them out)
@@ -63,4 +63,4 @@ for l, ok, seen, affw in res:
         if r not in R: R.append(r)
         r["ids"] = [o[0] for o in ok]; r["names"] = [o[1] for o in ok]; r["scores"] = [99] * len(ok); r["via"] = "profile+affiliation"; added += 1
 print("added", added, "of", len(missing))
-if "--dry" not in sys.argv: json.dump(R, open("data/author_ids.json", "w"), indent=0)
+if "--dry" not in sys.argv: json.dump(R, open("raw/author_ids.json", "w"), indent=0)

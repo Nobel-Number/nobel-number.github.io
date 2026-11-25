@@ -1,9 +1,9 @@
 import json
-L = json.load(open("data/laureates.json"))
-raw = json.load(open("data/coauthors_raw.json"))
+L = json.load(open("raw/laureates.json"))
+raw = json.load(open("raw/coauthors_raw.json"))
 lid_to_idx = {}
 site_l = []
-try: old = json.load(open("site/data/laureates.json"))  # keep fields added by later steps (bios, top paper)
+try: old = json.load(open("data/laureates.json"))  # keep fields added by later steps (bios, top paper)
 except Exception: old = []
 for i, l in enumerate(L):
     rec = dict(old[i]) if i < len(old) and old[i].get("name") == l["name"] else {}
@@ -19,7 +19,7 @@ for r in raw:
         if yr and not (lo <= yr <= hi): dropped += 1; continue
         lst = co.setdefault(a, [])
         if len(lst) < 6 and all(x[0] != li for x in lst): lst.append([li, wid])
-json.dump(site_l, open("site/data/laureates.json", "w"), separators=(",", ":"))
-json.dump(lids, open("site/data/laureate_ids.json", "w"), separators=(",", ":"))
-json.dump(co, open("site/data/coauthors.json", "w"), separators=(",", ":"))
+json.dump(site_l, open("data/laureates.json", "w"), separators=(",", ":"))
+json.dump(lids, open("data/laureate_ids.json", "w"), separators=(",", ":"))
+json.dump(co, open("data/coauthors.json", "w"), separators=(",", ":"))
 print("dropped out-of-lifetime links", dropped); print("laureate ids", len(lids), "coauthors", len(co))

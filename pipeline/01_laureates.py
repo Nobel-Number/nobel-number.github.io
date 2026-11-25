@@ -25,5 +25,5 @@ for c in cats:
         off += 100
         if off >= d["meta"]["count"]: break
         time.sleep(0.3)
-json.dump(out, open("data/laureates.json","w"), indent=1)
+json.dump(out, open("raw/laureates.json","w"), indent=1)
 print(len(out)); import collections; print(collections.Counter(x["cat"] for x in out)); print(out[-1])
