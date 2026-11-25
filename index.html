@@ -1,3 +1,6 @@
+<!doctype html>
+<html lang="en">
+<head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Nobel Number: how many co-authors away are you from a Nobel laureate?</title>
@@ -250,6 +253,8 @@ footer .inner { display: flex; justify-content: space-between; gap: 12px; flex-w
   .stats { grid-template-columns: 1fr 1fr } .stat.topic { grid-column: span 2; border-left: 0; padding-left: 4px; border-top: 1px solid var(--line) }
 }
 </style>
+</head>
+<body>
 
 <header class="hero">
   <div class="inner">
@@ -802,3 +807,5 @@ try {
   $('netsug').addEventListener('click', e => { const b = e.target.closest('button[data-li]'); if (b) pickLaureate(+b.dataset.li); });
 } catch (e) { setStatus('Could not load the laureate data: ' + e.message, true); console.error(e); }
 </script>
+</body>
+</html>
