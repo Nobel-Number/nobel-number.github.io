@@ -30,15 +30,11 @@
   --body: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
   --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
 }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-  --bg: #080c17; --panel: #0f1526; --panel-2: #0c1220; --ink: #eceff6; --muted: #8f99af; --line: #212a40;
+/* One navy theme everywhere, in light and dark mode alike. */
+:root, :root[data-theme="light"], :root[data-theme="dark"] {
+  --bg: #0b1224; --panel: #121b33; --panel-2: #0f172c; --ink: #eceff6; --muted: #98a3bb; --line: #243052;
   --gold: #dcb75c; --gold-hi: #f1d58a; --gold-soft: #2a2416;
-  --hero: #060a14; --hero-2: #0f1730; --hero-line: #1f2842;
-  --phy: #86aaf0; --che: #6dc9a0; --med: #ee8c9e; --eco: #b99ae6; --bad: #ee8c9e; color-scheme: dark } }
-:root[data-theme="dark"] {
-  --bg: #080c17; --panel: #0f1526; --panel-2: #0c1220; --ink: #eceff6; --muted: #8f99af; --line: #212a40;
-  --gold: #dcb75c; --gold-hi: #f1d58a; --gold-soft: #2a2416;
-  --hero: #060a14; --hero-2: #0f1730; --hero-line: #1f2842;
+  --hero: #0a0f1c; --hero-2: #121a30; --hero-line: #26304a;
   --phy: #86aaf0; --che: #6dc9a0; --med: #ee8c9e; --eco: #b99ae6; --bad: #ee8c9e; color-scheme: dark }
 
 * { box-sizing: border-box }
@@ -54,8 +50,8 @@ a { color: inherit }
   color: var(--hero-ink); position: relative; overflow: hidden;
   background:
     radial-gradient(700px 380px at 82% 18%, rgba(220, 183, 92, .16), transparent 70%),
-    radial-gradient(900px 500px at 10% 110%, rgba(63, 111, 192, .18), transparent 70%),
-    linear-gradient(180deg, var(--hero) 0%, var(--hero-2) 100%); }
+    radial-gradient(900px 420px at 10% 45%, rgba(63, 111, 192, .12), transparent 70%),
+    linear-gradient(180deg, var(--hero) 0%, var(--hero-2) 60%, var(--bg) 100%); }
 .hero::before { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .45;
   background-image: radial-gradient(rgba(238, 241, 248, .22) 1px, transparent 1.2px); background-size: 28px 28px;
   mask-image: linear-gradient(180deg, #000 0%, transparent 85%); -webkit-mask-image: linear-gradient(180deg, #000 0%, transparent 85%) }
