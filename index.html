@@ -14,6 +14,10 @@
 <meta property="og:image" content="https://nobel-number.github.io/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Nobel Number: how many papers away is your Nobel Prize?">
+<meta name="twitter:title" content="Nobel Number: how many papers away is your Nobel Prize?">
+<meta name="twitter:description" content="The shortest chain of co-authored papers from any researcher to a Nobel laureate. Free, with every link checked.">
+<meta name="twitter:image" content="https://nobel-number.github.io/og-image.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#0a0f1c">
 <meta name="google-site-verification" content="Xmf2q2xuxdmaCSerpLwC5NRnr4D-RE2iadxxY03aQF8">
@@ -138,6 +142,15 @@ h2 { font: 700 28px/1.15 var(--body); margin: 0; letter-spacing: -.02em; text-wr
 .medal-cap { font: 500 11.5px var(--mono); letter-spacing: .16em; text-transform: uppercase; color: var(--muted) }
 .medal-sub { font-size: 14.5px; color: var(--muted); max-width: 30ch; margin: 0 }
 .medal-sub b { color: var(--ink) }
+.share { display: grid; justify-items: center; gap: 8px; margin-top: 10px; width: 100% }
+.share-li { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 46px; padding: 0 22px; border-radius: 999px;
+  font: 700 15px var(--body); letter-spacing: .01em; color: #1a1305; text-decoration: none;
+  background: linear-gradient(180deg, var(--medal-1), var(--medal-2)); box-shadow: inset 0 1px 0 rgba(255,255,255,.5), 0 10px 26px -12px rgba(220,183,92,.7) }
+.share-li:hover { filter: brightness(1.06) }
+.share-li svg { width: 20px; height: 20px; flex: none }
+.share-copy { font: 500 12.5px var(--body); color: var(--muted); background: none; border: 0; padding: 4px 6px; cursor: pointer; text-decoration: underline; text-underline-offset: 3px }
+.share-copy:hover { color: var(--gold) }
+.share-li:focus-visible, .share-copy:focus-visible { outline: 2px solid var(--gold-hi); outline-offset: 3px }
 @media (prefers-reduced-motion: no-preference) { .medal .shine { animation: shine 7s ease-in-out infinite } }
 @keyframes shine { 0%, 100% { transform: rotate(-24deg) } 50% { transform: rotate(24deg) } }
 
@@ -305,6 +318,10 @@ footer .inner { display: flex; justify-content: space-between; gap: 12px; flex-w
         <div class="medal" id="medal"></div>
         <div class="medal-cap">Nobel number</div>
         <p class="medal-sub" id="medal-sub"></p>
+        <div class="share" id="share" hidden>
+          <a class="share-li" id="share-li" href="https://www.linkedin.com/" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="5" fill="#0a0f1c"/><path fill="#f1d58a" d="M6.2 9.4h2.6v8.4H6.2zM7.5 5.2a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zM10.4 9.4h2.5v1.2h.04c.35-.66 1.2-1.36 2.47-1.36 2.64 0 3.13 1.74 3.13 4v4.56h-2.6v-4.04c0-.97-.02-2.21-1.35-2.21-1.35 0-1.56 1.05-1.56 2.14v4.11h-2.6z"/></svg>Share on LinkedIn</a>
+          <button class="share-copy" id="share-copy" type="button">Copy the message instead</button>
+        </div>
       </div>
     </div>
     <div class="scale" id="scale" aria-hidden="true"></div>
@@ -718,12 +735,14 @@ function render(res, person, isSample, pick = 0) {
   if (n === null) {
     $('sum').textContent = `No chain to a laureate within four steps. We searched ${(res.searched || 0).toLocaleString()} researchers around ${person.name}. Small or very new publication records often end here.`;
     $('medal-sub').textContent = 'Beyond four steps';
+    $('share').hidden = true;
     $('chain-sec').hidden = true; $('reach-sec').hidden = true; NET.chain = null; netFigs(res); return;
   }
   const p = res.paths[pick] || res.paths[0];
   const l = D.laureates[p.laureate];
   const total = res.totalLaureates || res.paths.length;
   $('medal-sub').innerHTML = n === 0 ? `${esc(l.category)} ${l.year}` : `Nearest laureate: <b>${esc(l.name)}</b>`;
+  setShare(n, l, person, isSample);
   $('sum').innerHTML = n === 0
     ? `${esc(person.name)} is a Nobel laureate in ${esc(l.category)} (${l.year}).`
     : `${esc(person.name)} is <b>${n} co-authorship step${n > 1 ? 's' : ''}</b> from ${esc(l.name)}, ${esc(l.category)} ${l.year}${total > 1 ? `, and the same distance from ${total - 1} other laureate${total > 2 ? 's' : ''}` : ''}.`;
@@ -752,6 +771,25 @@ function render(res, person, isSample, pick = 0) {
 }
 $('chain').addEventListener('click', e => { const a = e.target.closest('[data-about]'); if (a) { e.preventDefault(); $('about').scrollIntoView({ behavior: 'smooth', block: 'center' }); } });
 $('others').addEventListener('click', e => { const b = e.target.closest('.other'); if (b && current) { render(current.res, current.person, current.isSample, +b.dataset.i); $('chain-sec').scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' }); } });
+
+// Sharing: LinkedIn's compose box takes prefilled text; the link inside it reopens this exact result.
+const SITE = 'https://nobel-number.github.io/';
+let shareText = '';
+function setShare(n, l, person, isSample) {
+  $('share').hidden = isSample;
+  if (isSample) return;
+  const link = /^A\d+$/.test(person.id || '') ? `${SITE}?author=${person.id}` : SITE;
+  if (link !== SITE) try { history.replaceState(null, '', `?author=${person.id}`); } catch {}
+  shareText = n === 0
+    ? `My Nobel number is 0: I'm a Nobel laureate (${l.category} ${l.year}). What's yours? Find out at ${link}`
+    : `My Nobel number is ${n}! I'm ${n} co-authorship step${n > 1 ? 's' : ''} from Nobel laureate ${l.name} (${l.category} ${l.year}). What's yours? Find out at ${link}`;
+  $('share-li').href = 'https://www.linkedin.com/feed/?shareActive=true&text=' + encodeURIComponent(shareText);
+  $('share-copy').textContent = 'Copy the message instead';
+}
+$('share-copy').addEventListener('click', async () => {
+  try { await navigator.clipboard.writeText(shareText); $('share-copy').textContent = 'Copied. Paste it into your post.'; }
+  catch { $('share-copy').textContent = 'Copy failed. Select and copy: ' + shareText; }
+});
 
 async function run(person) {
   $('cands').hidden = true; $('go').disabled = true;
@@ -805,6 +843,9 @@ try {
   });
   $('netq').addEventListener('keydown', e => { if (e.key === 'Enter' && sug[0]) { e.preventDefault(); pickLaureate(sug[0].li); } if (e.key === 'Escape') $('netsug').hidden = true; });
   $('netsug').addEventListener('click', e => { const b = e.target.closest('button[data-li]'); if (b) pickLaureate(+b.dataset.li); });
+  // A shared link (?author=A123…) opens straight to that researcher's result.
+  const shared = new URLSearchParams(location.search).get('author');
+  if (shared && /^A\d{5,}$/i.test(shared)) { $('q').value = shared.toUpperCase(); $('go').click(); }
 } catch (e) { setStatus('Could not load the laureate data: ' + e.message, true); console.error(e); }
 </script>
 </body>
